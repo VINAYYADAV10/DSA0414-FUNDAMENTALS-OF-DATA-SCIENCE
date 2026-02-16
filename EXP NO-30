@@ -1,0 +1,69 @@
+# Import required libraries
+import pandas as pd
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.preprocessing import LabelEncoder
+
+print("===== CAR PRICE PREDICTION USING CART =====")
+
+# Load dataset
+# Make sure car_data.csv is in same folder
+df = pd.read_csv("car_data.csv")
+
+# Encode categorical columns
+le_brand = LabelEncoder()
+le_engine = LabelEncoder()
+
+df["Brand"] = le_brand.fit_transform(df["Brand"])
+df["Engine"] = le_engine.fit_transform(df["Engine"])
+
+# Features and target
+X = df[["Mileage", "Age", "Brand", "Engine"]]
+y = df["Price"]
+
+# Create CART Regression model
+model = DecisionTreeRegressor()
+
+# Train model
+model.fit(X, y)
+
+print("Model Trained Successfully!\n")
+
+# ===== User Input =====
+mileage = float(input("Enter Car Mileage (km): "))
+age = int(input("Enter Car Age (years): "))
+brand = input("Enter Car Brand (e.g., Toyota, BMW): ")
+engine = input("Enter Engine Type (Petrol/Diesel): ")
+
+# Encode user input
+brand_encoded = le_brand.transform([brand])[0]
+engine_encoded = le_engine.transform([engine])[0]
+
+# Prepare input data
+new_car = [[mileage, age, brand_encoded, engine_encoded]]
+
+# Predict price
+predicted_price = model.predict(new_car)
+
+print("\nPredicted Car Price: ₹", round(predicted_price[0], 2))
+
+# ===== Display Decision Path =====
+node_indicator = model.decision_path(new_car)
+leaf_id = model.apply(new_car)
+
+feature = X.columns
+
+print("\nDecision Path:")
+
+for node_id in node_indicator.indices:
+    if leaf_id[0] == node_id:
+        continue
+    
+    threshold = model.tree_.threshold[node_id]
+    feature_name = feature[model.tree_.feature[node_id]]
+    
+    if new_car[0][model.tree_.feature[node_id]] <= threshold:
+        condition = "<="
+    else:
+        condition = ">"
+    
+    print(f"{feature_name} {condition} {round(threshold,2)}")
