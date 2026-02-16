@@ -1,0 +1,47 @@
+# Import required libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+print("===== STOCK PRICE VARIABILITY ANALYSIS =====")
+
+# Load dataset
+# Make sure stock_data.csv is in same folder
+df = pd.read_csv("stock_data.csv")
+
+# Display first 5 rows
+print("\nFirst 5 Rows of Dataset:")
+print(df.head())
+
+# Extract Closing Prices
+closing_prices = df["Close"]
+
+# ===== Variability Measures =====
+
+mean_price = np.mean(closing_prices)
+std_dev = np.std(closing_prices)
+variance = np.var(closing_prices)
+min_price = np.min(closing_prices)
+max_price = np.max(closing_prices)
+
+print("\n===== Statistical Summary =====")
+print("Mean Closing Price:", round(mean_price, 2))
+print("Standard Deviation:", round(std_dev, 2))
+print("Variance:", round(variance, 2))
+print("Minimum Price:", min_price)
+print("Maximum Price:", max_price)
+
+# ===== Daily Returns =====
+df["Daily_Return"] = df["Close"].pct_change()
+
+volatility = np.std(df["Daily_Return"].dropna())
+
+print("Volatility (Std of Daily Returns):", round(volatility, 4))
+
+# ===== Plot Stock Prices =====
+plt.figure()
+plt.plot(df["Close"])
+plt.xlabel("Trading Days")
+plt.ylabel("Closing Price")
+plt.title("Stock Closing Price Over Time")
+plt.show()
